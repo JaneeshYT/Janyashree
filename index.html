@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday! 🎂</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fdfdff;
+            --fg: #1a1a2e;
+            --accent: #ff6b6b;
+            --accent-glow: #ff8585;
+            --card: #ffffff;
+            --muted: #6b7280;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg);
+            color: var(--fg);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Confetti Container */
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .confetti-piece {
+                width: 6px;
+                height: 6px;
+            }
+            h1 { font-size: 2.5rem; }
+            .btn { padding: 0.75rem 1.5rem; font-size: 1rem; }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        /* Button Hover */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #ee5a5a);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+            background: linear-gradient(135deg, #ee5a5a, var(--accent));
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        /* Heart Beat on load */
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.1); }
+            28% { transform: scale(0.9); }
+            42% { transform: scale(1.05); }
+            70% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
+        .heart-beat {
+            animation: heartbeat 1.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Confetti Container -->
+    <div id="confetti-container"></div>
+
+    <!-- Main Content -->
+    <main class="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12 text-center">
+        
+        <!-- Floating Elements -->
+        <div class="animate-fade-in heart-beat" style="--delay: 0s;">
+            <div class="inline-block w-20 h-20 bg-red-400 rounded-full opacity-20 blur-3xl -top-20 -left-10" style="--delay: 0.1s;"></div>
+            <div class="inline-block w-20 h-20 bg-pink-400 rounded-full opacity-20 blur-3xl -bottom-20 -right-10" style="--delay: 0.2s;"></div>
+        </div>
+
+        <!-- Title -->
+        <h1 class="font-pacifico text-5xl md:text-7xl font-light tracking-wider text-gray-800 mb-6 animate-fade-in delay-1" style="--delay: 0s;">
+            Happy Birthday! 🎂
+        </h1>
+
+        <!-- Message -->
+        <p class="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-10 animate-fade-in delay-2" style="--delay: 0.2s;">
+            Wishing you a year filled with joy, love, and unforgettable moments. 
+            May all your dreams come true! 🎉
+        </p>
+
+        <!-- Trigger Button -->
+        <button id="confetti-btn" class="btn-primary animate-fade-in delay-3" style="--delay: 0.3s;">
+            Make It Rain Confetti! 🎊
+        </button>
+
+    </main>
+
+    <script>
+        // --- Confetti Engine ---
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const confettiContainer = document.getElementById('confetti-container');
+        let confettiPieces = [];
+        let animationId = null;
+
+        // Set canvas size to full screen
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        // Create confetti piece
+        function createPiece() {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#55efc4', '#a29bfe'];
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.left = Math.random() * 100 + '%';
+            piece.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            piece.style.animationDelay = Math.random() * 2 + 's';
+            piece.style.opacity = Math.random() * 0.8 + 0.2;
+            piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+            confettiContainer.appendChild(piece);
+            confettiPieces.push(piece);
+
+            // Remove piece after animation ends
+            setTimeout(() => {
+                if (piece.parentNode) {
+                    piece.remove();
+                }
+                confettiPieces = confettiPieces.filter(p => p !== piece);
+            }, 5500);
+        }
+
+        // Animate confetti
+        function animateConfetti() {
+            resizeCanvas();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            confettiPieces.forEach(piece => {
+                const rect = piece.getBoundingClientRect();
+                if (rect.top > window.innerHeight || rect.left < -20 || rect.right > window.innerWidth + 20) {
+                    piece.remove();
+                    confettiPieces = confettiPieces.filter(p => p !== piece);
+                    return;
+                }
+            });
+
+            requestAnimationFrame(animateConfetti);
+        }
+
+        // Trigger confetti
+        function triggerConfetti() {
+            // Stop any existing animation
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            // Clear existing pieces
+            confettiPieces.forEach(p => p.remove());
+            confettiPieces = [];
+
+            // Create new pieces
+            for (let i = 0; i < 150; i++) {
+                createPiece();
+            }
+
+            // Start animation loop
+            animateConfetti();
+        }
+
+        // Event Listeners
+        document.getElementById('confetti-btn').addEventListener('click', triggerConfetti);
+
+        // Auto-trigger on load (optional)
+        // triggerConfetti();
+
+        // Responsive resize
+        window.addEventListener('resize', resizeCanvas);
+
+        // Initial resize
+        resizeCanvas();
+    </script>
+</body>
+</html>
